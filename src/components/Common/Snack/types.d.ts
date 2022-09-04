@@ -1,0 +1,15 @@
+import React from 'react';
+
+export interface SnackProps extends React.HTMLAttributes<HTMLDivElement> {
+  show: boolean;
+  children?: React.Node;
+  countDown?: number;
+  pauseOnHover?: boolean;
+  classes?: SnackClasses;
+  onClose?: () => void;
+}
+
+interface SnackClasses {
+  snack?: string;
+  closeButton?: string;
+}
