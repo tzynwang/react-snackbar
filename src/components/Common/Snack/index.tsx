@@ -1,6 +1,7 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import { css, keyframes } from '@emotion/css';
 import cn from 'classnames';
+import Portal from '@Components/Common/Portal';
 import type { SnackProps } from './types';
 
 const countDownAnimation = keyframes`
@@ -28,11 +29,11 @@ function Snack(props: SnackProps): React.ReactElement {
   delete rest.className;
 
   /* Functions */
-  const closeSnack = (): void => {
+  const closeSnack = useCallback(() => {
     if (onClose) {
       onClose();
     }
-  };
+  }, [onClose]);
 
   /* Hooks */
   useEffect(() => {
@@ -40,62 +41,64 @@ function Snack(props: SnackProps): React.ReactElement {
     return () => {
       document.removeEventListener('animationend', closeSnack);
     };
-  }, []);
+  }, [closeSnack]);
 
   /* Main */
   return show ? (
-    <div
-      className={cn(
-        css({
-          minHeight: '60px',
-          minWidth: '240px',
-          display: 'inline-block',
-          position: 'fixed',
-          top: '24px',
-          right: '24px',
-          padding: '8px',
-          backgroundColor: '#fff',
-          '&:hover::before': {
-            animationPlayState: pauseOnHover ? 'paused' : 'running',
-          },
-          '&::before': {
-            content: '""',
-            width: '100%',
-            height: '2px',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            backgroundColor: '#4e342e',
-            transform: 'scaleX(0%)',
-            transformOrigin: 'top left',
-            animation: `${countDownAnimation} ${animationDuration}s ease`,
-          },
-        }),
-        classes.snack,
-        classNameFromProps
-      )}
-    >
-      {children}
-      <button
-        type="button"
-        onClick={onClose}
+    <Portal>
+      <div
         className={cn(
           css({
-            width: '24px',
-            height: '24px',
-            position: 'absolute',
-            top: '8px',
-            right: '8px',
-            borderRadius: '24px',
-            border: 'none',
-            cursor: 'pointer',
+            minHeight: '60px',
+            minWidth: '240px',
+            display: 'inline-block',
+            position: 'fixed',
+            top: '24px',
+            right: '24px',
+            padding: '8px',
+            backgroundColor: '#fff',
+            '&:hover::before': {
+              animationPlayState: pauseOnHover ? 'paused' : 'running',
+            },
+            '&::before': {
+              content: '""',
+              width: '100%',
+              height: '2px',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              backgroundColor: '#4e342e',
+              transform: 'scaleX(0%)',
+              transformOrigin: 'top left',
+              animation: `${countDownAnimation} ${animationDuration}s ease`,
+            },
           }),
-          classes.closeButton
+          classes.snack,
+          classNameFromProps
         )}
       >
-        X
-      </button>
-    </div>
+        {children}
+        <button
+          type="button"
+          onClick={onClose}
+          className={cn(
+            css({
+              width: '24px',
+              height: '24px',
+              position: 'absolute',
+              top: '8px',
+              right: '8px',
+              borderRadius: '24px',
+              border: 'none',
+              cursor: 'pointer',
+            }),
+            classes.closeButton
+          )}
+        >
+          X
+        </button>
+      </div>
+    </Portal>
   ) : (
     <React.Fragment />
   );
