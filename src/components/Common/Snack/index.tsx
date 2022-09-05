@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useCallback, useEffect } from 'react';
+import React, { memo, useMemo, createRef, useCallback, useEffect } from 'react';
 import { css, keyframes } from '@emotion/css';
 import cn from 'classnames';
 import Portal from '@Components/Common/Portal';
@@ -48,6 +48,7 @@ function Snack(props: SnackProps): React.ReactElement {
           }),
     [disableAutoClose, animationDuration]
   );
+  const snackRef = createRef<HTMLDivElement>();
 
   /* Functions */
   const closeSnack = useCallback(() => {
@@ -57,11 +58,8 @@ function Snack(props: SnackProps): React.ReactElement {
 
   /* Hooks */
   useEffect(() => {
-    document.addEventListener('animationend', closeSnack);
-    return () => {
-      document.removeEventListener('animationend', closeSnack);
-    };
-  }, [closeSnack]);
+    snackRef.current?.addEventListener('animationend', closeSnack);
+  }, [snackRef, closeSnack]);
 
   /* Main */
   return show ? (
@@ -85,6 +83,7 @@ function Snack(props: SnackProps): React.ReactElement {
           classes.snack,
           classNameFromProps
         )}
+        ref={snackRef}
       >
         {children}
         <button
