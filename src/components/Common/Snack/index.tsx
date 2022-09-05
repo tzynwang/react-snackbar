@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect } from 'react';
+import React, { memo, useMemo, useCallback, useEffect } from 'react';
 import { css, keyframes } from '@emotion/css';
 import cn from 'classnames';
 import Portal from '@Components/Common/Portal';
@@ -19,6 +19,7 @@ function Snack(props: SnackProps): React.ReactElement {
     show,
     children,
     countDown = 2000,
+    disableAutoClose = false,
     pauseOnHover = false,
     classes = { snack: '', closeButton: '' },
     onClose,
@@ -27,13 +28,32 @@ function Snack(props: SnackProps): React.ReactElement {
   const animationDuration = countDown / 1000;
   const classNameFromProps = rest.className;
   delete rest.className;
+  const progressBarStyle = useMemo(
+    () =>
+      disableAutoClose
+        ? undefined
+        : css({
+            '&::before': {
+              content: '""',
+              width: '100%',
+              height: '2px',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              backgroundColor: '#4e342e',
+              transform: 'scaleX(0%)',
+              transformOrigin: 'top left',
+              animation: `${countDownAnimation} ${animationDuration}s ease`,
+            },
+          }),
+    [disableAutoClose, animationDuration]
+  );
 
   /* Functions */
   const closeSnack = useCallback(() => {
-    if (onClose) {
-      onClose();
-    }
-  }, [onClose]);
+    if (disableAutoClose) return;
+    if (onClose) onClose();
+  }, [disableAutoClose, onClose]);
 
   /* Hooks */
   useEffect(() => {
@@ -60,19 +80,8 @@ function Snack(props: SnackProps): React.ReactElement {
             '&:hover::before': {
               animationPlayState: pauseOnHover ? 'paused' : 'running',
             },
-            '&::before': {
-              content: '""',
-              width: '100%',
-              height: '2px',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              backgroundColor: '#4e342e',
-              transform: 'scaleX(0%)',
-              transformOrigin: 'top left',
-              animation: `${countDownAnimation} ${animationDuration}s ease`,
-            },
           }),
+          progressBarStyle,
           classes.snack,
           classNameFromProps
         )}

@@ -4,6 +4,7 @@ export interface SnackProps extends React.HTMLAttributes<HTMLDivElement> {
   show: boolean;
   children?: React.Node;
   countDown?: number;
+  disableAutoClose?: boolean;
   pauseOnHover?: boolean;
   classes?: SnackClasses;
   onClose?: () => void;
